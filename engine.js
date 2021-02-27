@@ -199,6 +199,14 @@ module.exports = function(options) {
             return answers.isIssueAffected;
           },
           default: options.defaultIssues ? options.defaultIssues : undefined
+        },        {
+          type: 'time',
+          name: 'time',
+          message: 'Provide a time estamite of how long it took you to complete this task:',
+          default: '',
+          when: function(answers) {
+            return answers.time;
+          }
         }
       ]).then(async function(answers) {
         var wrapOptions = {
@@ -213,9 +221,13 @@ module.exports = function(options) {
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
         var jira = answers.jira ? answers.jira + ' ' : '';
 
-        // Hard limit this line in the validate
-        const head = answers.type + scope + ': ' + jira + answers.subject;
+        // time hash for jira
+        var time = answers.time ? `#time ${ answers.time }` : '';
 
+        // Hard limit this line in the validate
+        // const head = answers.type + scope + ': ' + jira + answers.subject;
+        const head = `${ answers.type }${ scope }': '${ jira } ${time} ${ answers.subject }`;
+        
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
 
