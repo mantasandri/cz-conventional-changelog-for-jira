@@ -106,6 +106,13 @@ module.exports = function(options) {
           }
         },
         {
+          type: 'input',
+          name: 'time',
+          message: 'Provide a time estamite of how long it took you to complete this task (##d ##h ##m):',
+          default: '',
+          when: options.jiraMode
+        },
+        {
           type: hasScopes ? 'list' : 'input',
           name: 'scope',
           when: !options.skipScope,
@@ -171,7 +178,6 @@ module.exports = function(options) {
             return answers.isBreaking;
           }
         },
-
         {
           type: 'confirm',
           name: 'isIssueAffected',
@@ -199,14 +205,6 @@ module.exports = function(options) {
             return answers.isIssueAffected;
           },
           default: options.defaultIssues ? options.defaultIssues : undefined
-        },        {
-          type: 'time',
-          name: 'time',
-          message: 'Provide a time estamite of how long it took you to complete this task:',
-          default: '',
-          when: function(answers) {
-            return answers.time;
-          }
         }
       ]).then(async function(answers) {
         var wrapOptions = {
@@ -219,14 +217,14 @@ module.exports = function(options) {
 
         // parentheses are only needed when a scope is present
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
-        var jira = answers.jira ? answers.jira + ' ' : '';
+        var jira = answers.jira ? `(${ answers.jira })` : '';
 
         // time hash for jira
-        var time = answers.time ? `#time ${ answers.time }` : '';
+        var time = answers.time ? `#time ${ answers.time } ` : '';
 
         // Hard limit this line in the validate
         // const head = answers.type + scope + ': ' + jira + answers.subject;
-        const head = `${ answers.type }${ scope }': '${ jira } ${time} ${ answers.subject }`;
+        const head = `${ answers.type }${ scope }${ jira }: ${time}${ answers.subject }`;
         
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
