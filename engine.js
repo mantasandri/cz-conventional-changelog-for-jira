@@ -102,7 +102,7 @@ module.exports = function(options) {
             );
           },
           filter: function(jira) {
-            return jira.toUpperCase();
+            return jira.toLowerCase();
           }
         },
         {
@@ -217,14 +217,14 @@ module.exports = function(options) {
 
         // parentheses are only needed when a scope is present
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
-        var jira = answers.jira ? `(${ answers.jira.toLowerCase() })` : '';
+        var jira = answers.jira ? `(${ answers.jira })` : '';
 
         // time hash for jira
         var time = answers.time ? `#time ${ answers.time } ` : '';
 
         // Hard limit this line in the validate
         // const head = answers.type + scope + ': ' + jira + answers.subject;
-        const head = `${ answers.type }${ scope }${ jira }: ${time}${ answers.subject.toLowerCase() }`;
+        const head = `${ answers.type }${ scope }${ jira }: ${time}${ answers.subject }`;
         
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
