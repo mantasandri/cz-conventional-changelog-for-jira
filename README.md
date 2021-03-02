@@ -17,7 +17,7 @@ Part of the [commitizen](https://github.com/commitizen/cz-cli) family. Prompts f
 ### Installation
 
 ```bash
-npm install commitizen @digitalroute/cz-conventional-changelog-for-jira
+npm install commitizen Continued-llc/cz-conventional-changelog-for-jira
 ```
 
 and then add the following to package.json:
