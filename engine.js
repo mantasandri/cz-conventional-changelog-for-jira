@@ -108,9 +108,12 @@ module.exports = function(options) {
         {
           type: 'input',
           name: 'time',
-          message: 'Provide a time estamite of how long it took you to complete this task (##d ##h ##m):',
+          message: 'Provide a time estimate of how long it took you to complete this task (e.g. 4h 30m):',
           default: '',
-          when: options.jiraMode
+          when: options.jiraMode,
+          validate: input =>
+            input.length > 0 ||
+            `Time must not be empty`,
         },
         {
           type: hasScopes ? 'list' : 'input',
@@ -119,7 +122,7 @@ module.exports = function(options) {
           choices: hasScopes ? options.scopes : undefined,
           message:
             'What is the scope of this change (e.g. component or file name): ' +
-            (hasScopes ? '(select from the list)' : '(press enter to skip)'),
+            (hasScopes ? '(select from the list)' : ''),
           default: options.defaultScope,
           filter: function(value) {
             return value.trim().toLowerCase();
@@ -152,8 +155,11 @@ module.exports = function(options) {
           type: 'input',
           name: 'body',
           message:
-            'Provide a longer description of the change: (press enter to skip)\n',
-          default: options.defaultBody
+            'Provide a longer description of the change:\n',
+          default: options.defaultBody,
+          validate: input =>
+            input.length > 0 ||
+            `Long description must not be empty`,
         },
         {
           type: 'confirm',
@@ -176,7 +182,10 @@ module.exports = function(options) {
           message: 'Describe the breaking changes:\n',
           when: function(answers) {
             return answers.isBreaking;
-          }
+          },
+          validate: input =>
+            input.length > 0 ||
+            `Breaking change description must not be empty`,
         },
         {
           type: 'confirm',
@@ -195,7 +204,10 @@ module.exports = function(options) {
             return (
               answers.isIssueAffected && !answers.body && !answers.breakingBody
             );
-          }
+          },
+          validate: input =>
+            input.length > 0 ||
+            `Issues body must not be empty`,
         },
         {
           type: 'input',
@@ -204,8 +216,28 @@ module.exports = function(options) {
           when: function(answers) {
             return answers.isIssueAffected;
           },
-          default: options.defaultIssues ? options.defaultIssues : undefined
-        }
+          default: options.defaultIssues ? options.defaultIssues : undefined,
+          validate: input =>
+            input.length > 0 ||
+            `Issue references must not be empty`,
+        },
+        {
+          type: 'confirm',
+          name: 'isDocumented',
+          message: 'Have you created/updated all relevant documentation (inline, athena-muse, confluence, etc)?',
+          default: false
+        },
+        {
+          type: 'input',
+          name: 'documentation',
+          message: 'Add reference links to external doc pages:\n',
+          when: function(answers) {
+            return answers.isDocumented;
+          },
+          validate: input =>
+            input.length > 0 ||
+            `Documentation references must not be empty`,
+        },
       ]).then(async function(answers) {
         var wrapOptions = {
           trim: true,
@@ -215,16 +247,15 @@ module.exports = function(options) {
           width: options.maxLineWidth
         };
 
-        // parentheses are only needed when a scope is present
+        // Parentheses are only needed when a scope is present
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
-        var jira = answers.jira ? `(${ answers.jira.toLowerCase() })` : '';
+        var jira = answers.jira ? `(${ answers.jira })` : '';
 
-        // time hash for jira
-        var time = answers.time ? `#time ${ answers.time } ` : '';
+        // Time hash for jira
+        var time = answers.time ? ` #time ${ answers.time }` : '';
 
         // Hard limit this line in the validate
-        // const head = answers.type + scope + ': ' + jira + answers.subject;
-        const head = `${ answers.type }${ scope }${ jira }: ${time}${ answers.subject.toLowerCase() }`;
+        const head = `${ answers.type }${ scope }${ jira }: ${ answers.subject }${ time }`;
         
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
@@ -237,8 +268,11 @@ module.exports = function(options) {
         breaking = breaking ? wrap(breaking, wrapOptions) : false;
 
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
+        
+        // Documentation information
+        var documentation = answers.documentation ? `Documentation: ${ wrap(answers.documentation, wrapOptions) }` : false;
 
-        const fullCommit = filter([head, body, breaking, issues]).join('\n\n');
+        const fullCommit = filter([head, body, breaking, issues, documentation]).join('\n\n');
 
         if (testMode) {
           return commit(fullCommit);
