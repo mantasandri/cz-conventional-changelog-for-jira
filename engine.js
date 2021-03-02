@@ -249,7 +249,7 @@ module.exports = function(options) {
 
         // Parentheses are only needed when a scope is present
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
-        var jira = answers.jira ? `(${ answers.jira })` : '';
+        var jira = answers.jira ? `${ answers.jira }` : '';
 
         // Time hash for jira
         var time = answers.time ? ` #time ${ answers.time }` : '';
