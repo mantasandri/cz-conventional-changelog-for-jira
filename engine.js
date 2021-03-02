@@ -255,7 +255,7 @@ module.exports = function(options) {
         var time = answers.time ? ` #time ${ answers.time }` : '';
 
         // Hard limit this line in the validate
-        const head = `${ answers.type }${ scope }${ jira }: ${ answers.subject }${ time }`;
+        const head = `${ answers.type }${ scope }: ${ jira } ${ answers.subject }${ time }`;
         
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
