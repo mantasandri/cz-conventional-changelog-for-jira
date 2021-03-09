@@ -1,4 +1,4 @@
-var conventionalCommitTypes = require('./types');
+var conventionalCommitTypes = require('./types')
 
 module.exports = {
   types: conventionalCommitTypes,
@@ -9,4 +9,4 @@ module.exports = {
   maxLineWidth: 100,
   jiraPrefix: 'PACM',
   jiraOptional: false
-};
+}

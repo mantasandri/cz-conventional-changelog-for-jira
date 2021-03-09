@@ -1,58 +1,56 @@
-'format cjs';
+'format cjs'
 
-var wrap = require('word-wrap');
-var map = require('lodash.map');
-var longest = require('longest');
-var rightPad = require('right-pad');
-var chalk = require('chalk');
-const branch = require('git-branch');
-const boxen = require('boxen');
+var wrap = require('word-wrap')
+var map = require('lodash.map')
+var longest = require('longest')
+var rightPad = require('right-pad')
+var chalk = require('chalk')
+const branch = require('git-branch')
+const boxen = require('boxen')
 
-var defaults = require('./defaults');
-const LimitedInputPrompt = require('./LimitedInputPrompt');
+var defaults = require('./defaults')
+const LimitedInputPrompt = require('./LimitedInputPrompt')
 var filter = function(array) {
   return array.filter(function(x) {
-    return x;
-  });
-};
+    return x
+  })
+}
 
 var filterSubject = function(subject) {
-  subject = subject.trim();
+  subject = subject.trim()
   while (subject.endsWith('.')) {
-    subject = subject.slice(0, subject.length - 1);
+    subject = subject.slice(0, subject.length - 1)
   }
-  return subject;
-};
+  return subject
+}
 
 // This can be any kind of SystemJS compatible module.
 // We use Commonjs here, but ES6 or AMD would do just
 // fine.
 module.exports = function(options) {
   var getFromOptionsOrDefaults = function(key) {
-    return options[key] || defaults[key];
-  };
-  var types = getFromOptionsOrDefaults('types');
+    return options[key] || defaults[key]
+  }
+  var types = getFromOptionsOrDefaults('types')
 
-  var length = longest(Object.keys(types)).length + 1;
+  var length = longest(Object.keys(types)).length + 1
   var choices = map(types, function(type, key) {
     return {
       name: rightPad(key + ':', length) + ' ' + type.description,
       value: key
-    };
-  });
+    }
+  })
 
-  const minHeaderWidth = getFromOptionsOrDefaults('minHeaderWidth');
-  const maxHeaderWidth = getFromOptionsOrDefaults('maxHeaderWidth');
+  const minHeaderWidth = getFromOptionsOrDefaults('minHeaderWidth')
+  const maxHeaderWidth = getFromOptionsOrDefaults('maxHeaderWidth')
 
-  const branchName = branch.sync() || '';
-  const jiraIssueRegex = /(?<jiraIssue>(?<!([A-Z0-9]{1,10})-?)[A-Z0-9]+-\d+)/;
-  const matchResult = branchName.match(jiraIssueRegex);
+  const branchName = branch.sync() || ''
+  const jiraIssueRegex = /(?<jiraIssue>(?<!([A-Z0-9]{1,10})-?)[A-Z0-9]+-\d+)/
+  const matchResult = branchName.match(jiraIssueRegex)
   const jiraIssue =
-    matchResult && matchResult.groups && matchResult.groups.jiraIssue;
+    matchResult && matchResult.groups && matchResult.groups.jiraIssue
   const hasScopes =
-    options.scopes &&
-    Array.isArray(options.scopes) &&
-    options.scopes.length > 0;
+    options.scopes && Array.isArray(options.scopes) && options.scopes.length > 0
 
   return {
     // When a user runs `git cz`, prompter will
@@ -67,7 +65,7 @@ module.exports = function(options) {
     // By default, we'll de-indent your commit
     // template and will keep empty lines.
     prompter: function(cz, commit, testMode) {
-      cz.registerPrompt('limitedInput', LimitedInputPrompt);
+      cz.registerPrompt('limitedInput', LimitedInputPrompt)
 
       // Let's ask some questions of the user
       // so that we can populate our commit
@@ -99,21 +97,20 @@ module.exports = function(options) {
             return (
               (options.jiraOptional && !jira) ||
               /^(?<!([A-Z0-9]{1,10})-?)[A-Z0-9]+-\d+$/.test(jira)
-            );
+            )
           },
           filter: function(jira) {
-            return jira.toUpperCase();
+            return jira.toUpperCase()
           }
         },
         {
           type: 'input',
           name: 'time',
-          message: 'Provide a time estimate of how long it took you to complete this task (e.g. 4h 30m):',
+          message:
+            'Provide a time estimate of how long it took you to complete this task (e.g. 4h 30m):',
           default: '',
           when: options.jiraMode,
-          validate: input =>
-            input.length > 0 ||
-            `Time must not be empty`,
+          validate: input => input.length > 0 || `Time must not be empty`
         },
         {
           type: hasScopes ? 'list' : 'input',
@@ -125,7 +122,7 @@ module.exports = function(options) {
             (hasScopes ? '(select from the list)' : ''),
           default: options.defaultScope,
           filter: function(value) {
-            return value.trim().toLowerCase();
+            return value.trim().toLowerCase()
           }
         },
         {
@@ -135,31 +132,29 @@ module.exports = function(options) {
           default: options.defaultSubject,
           maxLength: maxHeaderWidth,
           leadingLabel: answers => {
-            const jira = answers.jira ? ` ${answers.jira}` : '';
-            let scope = '';
+            const jira = answers.jira ? ` ${answers.jira}` : ''
+            let scope = ''
 
             if (answers.scope && answers.scope !== 'none') {
-              scope = `(${answers.scope})`;
+              scope = `(${answers.scope})`
             }
 
-            return `${answers.type}${scope}:${jira}`;
+            return `${answers.type}${scope}:${jira}`
           },
           validate: input =>
             input.length >= minHeaderWidth ||
             `The subject must have at least ${minHeaderWidth} characters`,
           filter: function(subject) {
-            return filterSubject(subject);
+            return filterSubject(subject)
           }
         },
         {
           type: 'input',
           name: 'body',
-          message:
-            'Provide a longer description of the change:\n',
+          message: 'Provide a longer description of the change:\n',
           default: options.defaultBody,
           validate: input =>
-            input.length > 0 ||
-            `Long description must not be empty`,
+            input.length > 0 || `Long description must not be empty`
         },
         {
           type: 'confirm',
@@ -170,10 +165,11 @@ module.exports = function(options) {
         {
           type: 'confirm',
           name: 'isBreaking',
-          message: 'You do know that this will bump the major version, are you sure?',
+          message:
+            'You do know that this will bump the major version, are you sure?',
           default: false,
           when: function(answers) {
-            return answers.isBreaking;
+            return answers.isBreaking
           }
         },
         {
@@ -181,11 +177,10 @@ module.exports = function(options) {
           name: 'breaking',
           message: 'Describe the breaking changes:\n',
           when: function(answers) {
-            return answers.isBreaking;
+            return answers.isBreaking
           },
           validate: input =>
-            input.length > 0 ||
-            `Breaking change description must not be empty`,
+            input.length > 0 || `Breaking change description must not be empty`
         },
         {
           type: 'confirm',
@@ -203,28 +198,26 @@ module.exports = function(options) {
           when: function(answers) {
             return (
               answers.isIssueAffected && !answers.body && !answers.breakingBody
-            );
+            )
           },
-          validate: input =>
-            input.length > 0 ||
-            `Issues body must not be empty`,
+          validate: input => input.length > 0 || `Issues body must not be empty`
         },
         {
           type: 'input',
           name: 'issues',
           message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
           when: function(answers) {
-            return answers.isIssueAffected;
+            return answers.isIssueAffected
           },
           default: options.defaultIssues ? options.defaultIssues : undefined,
           validate: input =>
-            input.length > 0 ||
-            `Issue references must not be empty`,
+            input.length > 0 || `Issue references must not be empty`
         },
         {
           type: 'confirm',
           name: 'isDocumented',
-          message: 'Have you created/updated all relevant documentation (inline, athena-muse, confluence, etc)?',
+          message:
+            'Have you created/updated all relevant documentation (inline, athena-muse, confluence, etc)?',
           default: false
         },
         {
@@ -232,12 +225,11 @@ module.exports = function(options) {
           name: 'documentation',
           message: 'Add reference links to external doc pages:\n',
           when: function(answers) {
-            return answers.isDocumented;
+            return answers.isDocumented
           },
           validate: input =>
-            input.length > 0 ||
-            `Documentation references must not be empty`,
-        },
+            input.length > 0 || `Documentation references must not be empty`
+        }
       ]).then(async function(answers) {
         var wrapOptions = {
           trim: true,
@@ -245,42 +237,52 @@ module.exports = function(options) {
           newline: '\n',
           indent: '',
           width: options.maxLineWidth
-        };
-
-        // Parentheses are only needed when a scope is present
-        var scope = answers.scope ? '(' + answers.scope + ')' : '';
-        var jira = answers.jira ? `${ answers.jira }` : '';
-
-        // Time hash for jira
-        var time = answers.time ? ` #time ${ answers.time }` : '';
-
-        // Hard limit this line in the validate
-        const head = `${ answers.type }${ scope }: ${ jira } ${ answers.subject }${ time }`;
-        
-        // Wrap these lines at options.maxLineWidth characters
-        var body = answers.body ? wrap(answers.body, wrapOptions) : false;
-
-        // Apply breaking change prefix, removing it if already present
-        var breaking = answers.breaking ? answers.breaking.trim() : '';
-        breaking = breaking
-          ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
-          : '';
-        breaking = breaking ? wrap(breaking, wrapOptions) : false;
-
-        var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
-        
-        // Documentation information
-        var documentation = answers.documentation ? `Documentation: ${ wrap(answers.documentation, wrapOptions) }` : false;
-
-        const fullCommit = filter([head, body, breaking, issues, documentation]).join('\n\n');
-
-        if (testMode) {
-          return commit(fullCommit);
         }
 
-        console.log();
-        console.log(chalk.underline('Commit preview:'));
-        console.log(boxen(chalk.green(fullCommit), { padding: 1, margin: 1 }));
+        // Parentheses are only needed when a scope is present
+        var scope = answers.scope ? '(' + answers.scope + ')' : ''
+        var jira = answers.jira ? `${answers.jira}` : ''
+
+        // Time hash for jira
+        var time = answers.time ? ` #time ${answers.time}` : ''
+
+        // Hard limit this line in the validate
+        const head = `${answers.type}${scope}: ${jira} ${
+          answers.subject
+        }${time}`
+
+        // Wrap these lines at options.maxLineWidth characters
+        var body = answers.body ? wrap(answers.body, wrapOptions) : false
+
+        // Apply breaking change prefix, removing it if already present
+        var breaking = answers.breaking ? answers.breaking.trim() : ''
+        breaking = breaking
+          ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
+          : ''
+        breaking = breaking ? wrap(breaking, wrapOptions) : false
+
+        var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false
+
+        // Documentation information
+        var documentation = answers.documentation
+          ? `Documentation: ${wrap(answers.documentation, wrapOptions)}`
+          : false
+
+        const fullCommit = filter([
+          head,
+          body,
+          breaking,
+          issues,
+          documentation
+        ]).join('\n\n')
+
+        if (testMode) {
+          return commit(fullCommit)
+        }
+
+        console.log()
+        console.log(chalk.underline('Commit preview:'))
+        console.log(boxen(chalk.green(fullCommit), { padding: 1, margin: 1 }))
 
         const { doCommit } = await cz.prompt([
           {
@@ -288,12 +290,12 @@ module.exports = function(options) {
             name: 'doCommit',
             message: 'Are you sure that you want to commit?'
           }
-        ]);
+        ])
 
         if (doCommit) {
-          commit(fullCommit);
+          commit(fullCommit)
         }
-      });
+      })
     }
-  };
-};
+  }
+}

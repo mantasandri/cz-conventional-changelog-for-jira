@@ -38,4 +38,4 @@ module.exports = {
     description: 'Reverts a previous commit',
     title: 'Reverts'
   }
-};
+}

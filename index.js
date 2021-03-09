@@ -1,19 +1,19 @@
-'format cjs';
+'format cjs'
 
-var engine = require('./engine');
-var conventionalCommitTypes = require('./types');
-var defaults = require('./defaults');
-var configLoader = require('commitizen').configLoader;
+var engine = require('./engine')
+var conventionalCommitTypes = require('./types')
+var defaults = require('./defaults')
+var configLoader = require('commitizen').configLoader
 
-var config = configLoader.load();
+var config = configLoader.load()
 
 function getEnvOrConfig(env, configVar, defaultValue) {
-  const isEnvSet = Boolean(env);
-  const isConfigSet = typeof configVar === 'boolean';
+  const isEnvSet = Boolean(env)
+  const isConfigSet = typeof configVar === 'boolean'
 
-  if (isEnvSet) return env === 'true';
-  if (isConfigSet) return configVar;
-  return defaultValue;
+  if (isEnvSet) return env === 'true'
+  if (isConfigSet) return configVar
+  return defaultValue
 }
 
 const options = {
@@ -53,25 +53,25 @@ const options = {
     config.jiraOptional,
     defaults.jiraOptional
   )
-};
+}
 
-(function(options) {
+;(function(options) {
   try {
-    var commitlintLoad = require('@commitlint/load');
+    var commitlintLoad = require('@commitlint/load')
     commitlintLoad().then(function(clConfig) {
       if (clConfig.rules) {
-        var maxHeaderLengthRule = clConfig.rules['header-max-length'];
+        var maxHeaderLengthRule = clConfig.rules['header-max-length']
         if (
           typeof maxHeaderLengthRule === 'object' &&
           maxHeaderLengthRule.length >= 3 &&
           !process.env.CZ_MAX_HEADER_WIDTH &&
           !config.maxHeaderWidth
         ) {
-          options.maxHeaderWidth = maxHeaderLengthRule[2];
+          options.maxHeaderWidth = maxHeaderLengthRule[2]
         }
       }
-    });
+    })
   } catch (err) {}
-})(options);
+})(options)
 
-module.exports = engine(options);
+module.exports = engine(options)

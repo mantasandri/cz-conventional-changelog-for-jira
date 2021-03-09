@@ -1,5 +1,5 @@
-var engine = require('./engine');
+var engine = require('./engine')
 
 module.exports = function(overridenOptions) {
-  return engine(overridenOptions);
-};
+  return engine(overridenOptions)
+}

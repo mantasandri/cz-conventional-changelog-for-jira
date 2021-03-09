@@ -4,7 +4,8 @@
   "description": "Commitizen adapter following the conventional-changelog format and also asking for JIRA issue.",
   "main": "index.js",
   "scripts": {
-    "commit": "git-cz",
+    "prepare": "npx husky install",
+    "lint": "eslint --ext \".js,.vue\"  --fix --ignore-path .gitignore .",
     "test": "mocha *.test.js",
     "format": "prettier --write *.js",
     "semantic-release": "semantic-release"
@@ -21,21 +22,28 @@
   "author": "Marcus Johansson <polarn@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@commitlint/load": ">6.1.1",
     "boxen": "^5.0.0",
     "chalk": "^2.4.1",
     "commitizen": "^4.0.3",
     "git-branch": "^2.0.1",
+    "husky": "^5.1.3",
     "lodash.map": "^4.5.1",
     "longest": "^2.0.1",
     "right-pad": "^1.0.1",
     "word-wrap": "^1.0.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^12.0.1",
+    "@commitlint/config-conventional": "^12.0.1",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "cosmiconfig": "^5.2.1",
     "cz-conventional-changelog": "^3.1.0",
+    "eslint": "^7.21.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "mocha": "^6.2.0",
     "mock-require": "^3.0.3",
     "prettier": "^1.15.3",
@@ -47,9 +55,7 @@
   },
   "config": {
     "commitizen": {
-      "path": "./index.js",
-      "jiraMode": false,
-      "skipScope": true
+      "path": "./index.js"
     }
   },
   "publishConfig": {
