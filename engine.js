@@ -254,7 +254,9 @@ module.exports = function(options) {
         }${scope}: ${jira} ${answers.subject.replace(/([()])/g, '')}${time}`
 
         // Wrap these lines at options.maxLineWidth characters
-        var body = answers.body ? wrap(answers.body.replace(/([()])/g, ''), wrapOptions) : false
+        var body = answers.body
+          ? wrap(answers.body.replace(/([()])/g, ''), wrapOptions)
+          : false
 
         // Apply breaking change prefix, removing it if already present
         var breaking = answers.breaking ? answers.breaking.trim() : ''
