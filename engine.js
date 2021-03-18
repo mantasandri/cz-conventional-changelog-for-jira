@@ -244,15 +244,17 @@ module.exports = function(options) {
         var jira = answers.jira ? `${answers.jira}` : ''
 
         // Time hash for jira
-        var time = answers.time ? ` #time ${answers.time}` : ''
+        var time = answers.time
+          ? ` #time ${answers.time.replace(/([()])/g, '')}`
+          : ''
 
         // Hard limit this line in the validate
-        const head = `${answers.type}${scope}: ${jira} ${
-          answers.subject
-        }${time}`
+        const head = `${
+          answers.type
+        }${scope}: ${jira} ${answers.subject.replace(/([()])/g, '')}${time}`
 
         // Wrap these lines at options.maxLineWidth characters
-        var body = answers.body ? wrap(answers.body, wrapOptions) : false
+        var body = answers.body ? wrap(answers.body.replace(/([()])/g, ''), wrapOptions) : false
 
         // Apply breaking change prefix, removing it if already present
         var breaking = answers.breaking ? answers.breaking.trim() : ''
